@@ -1,6 +1,27 @@
-# 各种 算法 数学建模算法 群体智能算法  数据结构：数组 字符串 链表 树 图 桶 森林 
+# 各种 算法 数学建模算法 群体智能算法 数组 字符串 链表 树 图 桶 森林 
+[《算法导论》第三版中算法的C++实现](https://github.com/Ewenwan/cplusplus-_Implementation_Of_Introduction_to_Algorithms)
+
+[剑指Offer——名企面试官精讲典型编程题](https://github.com/Ewenwan/CodingInterviews)
+
+[浙大PAT甲级、乙级c/c++源码](https://github.com/Ewenwan/ZJU_PAT)
+
+[算法周知 LeetCode, HackRank, 剑指offer, classic algorithm implementation](https://github.com/apachecn/awesome-algorithm)
+
+[Leetcode_Solutions c++/python/java](https://github.com/apachecn/awesome-algorithm/tree/master/docs/Leetcode_Solutions)
+
+[动态规划的思考艺术 寻路 背包问题](https://github.com/tianyicui/DP-Book)
+
+[学习中的算法笔记，面向面试](https://github.com/lchy1037/Algorithm-Notes)
+
+[算法与数据结构 - 课程官方代码仓 !!!!!!! 推荐](https://github.com/Ewenwan/Play-with-Algorithms)
+
 [Uri Zwick's home page 算法大师](http://www.cs.tau.ac.il/~zwick/)
 
+[常用算法 排序 哈希 树 队列... 类封装](https://github.com/Ewenwan/Algorithms-1)
+
+[图解算法 ！！！！！](https://github.com/Ewenwan/grokking_algorithms)
+
+[算法分析](https://github.com/jeffgerickson/algorithms)
 
 [算法/深度学习/NLP面试笔记 
     soccer 机器学习
@@ -12,6 +33,12 @@
     strawberry 编程语言
     cookie 笔试面经
 ](https://github.com/imhuay/Algorithm_Interview_Notes-Chinese)
+
+
+[python 学习线性代数](https://github.com/Ewenwan/Play-with-Linear-Algebra)
+
+
+[动画的形式呈现解LeetCode解题思路](https://github.com/Ewenwan/LeetCodeAnimation)
 
 [《算法导论》第三版 C++泛型实现 ](https://github.com/Ewenwan/CLRS-1)
 
@@ -53,9 +80,13 @@
 
 [博客c++ 技术](https://blog.csdn.net/gavin0123/article/list/3?t=1)
 
-
+[蓝桥杯竞赛练习题的题解](https://github.com/Ewenwan/Lanqiao)
 
 [常用算法的 C++ 实现](https://github.com/Ewenwan/Algorithms)
+
+[数据结构和算法 180+ Algorithm & Data Structure Problems using C++](https://github.com/Ewenwan/algorithms_and_data_structures)
+
+[CPP-Data-Structures-and-Algorithms](https://github.com/Ewenwan/CPP-Data-Structures-and-Algorithms)
 
 	常用算法
 	 二叉树和前中后序遍历
@@ -110,7 +141,10 @@ double getCubeRoot(double num)
 }
 
 ```
-
+	数值计算中文版  链接：https://pan.baidu.com/s/1C_HJPVXncqTXQSys2bTCxw 
+	提取码：gprx 
+        
+        配合英文版，在本目录下
 
 # 数组系列
 # 例如：求给定序列中 最大子序列的和

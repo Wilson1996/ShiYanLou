@@ -341,8 +341,18 @@ void loop()
 ## 脉宽
 ```c
 #include <TimerOne.h>
+/*
+HC-SR04超声波测距模块可提供2cm-400cm的非接触式距离感测功能，测距精度可达高到3mm；模块包括超声波发射器、接收器与控制电路。像智能小车的测距以及转向，或是一些项目中，常常会用到。智能小车测距可以及时发现前方的障碍物，使智能小车可以及时转向，避开障碍物。
 
+Vcc-GND 5V电源输入；Trig：触发信号输入；Echo:回响信号输出
 
+工作原理
+采用IO口TRIG触发测距，给最少10us的高电平信号。
+模块自动发送8个40khz的方波，自动检测是否有信号返回。
+有信号返回，通过IO口ECHO输出一个高电平，高电平持续的时间就是超声波从发射到返回的时间。
+$测试距离s=\frac{高电平时间t\times 声速（v=340m/s)}{2}$
+
+*/
 //const int  trigger_io = LED_BUILTIN;
 const int  trigger_io = 8;  // 触发口
 
@@ -921,4 +931,325 @@ void loop() {
 }
  
  ```
- 
+
+# 舵机内部控制程序   位置式控制
+```c
+    /* by Payne.Pan 2017.2 */
+    /* only for study      */
+    #define A   5
+    #define B   6
+    #define Delta 5 // 脉冲信号响应 灵敏度====
+
+    long prev_time=0;
+    long pwm=0;
+
+
+    void rising() // 2号口  pwm信号 脉冲上升沿
+    {
+      prev_time = micros();// 上升沿时刻的时间
+      attachInterrupt(0, falling, FALLING);// 切换为下降沿，检测脉冲信号的 下降沿
+    }
+
+
+    void falling() { // 检测脉冲信号的 下降沿
+      pwm = micros()-prev_time; // 下降沿时间 - 上升沿时间 ====> 脉冲信号 持续时间
+      attachInterrupt(0,rising, RISING);// 再次切换为 上降沿中断， 检测下一个脉冲信号的  上升沿
+    }
+
+// 控制电机 正转 反转 停止=====
+    void runMotor(int dir) 
+    {
+      if (dir == 0) // 点击停止
+      {
+        digitalWrite(A,LOW);
+        digitalWrite(B,LOW);
+      }
+      else if (dir > 0) // 电机正转
+      {
+        digitalWrite(A,HIGH);
+        digitalWrite(B,LOW);
+      } 
+      else  // 电机反转
+      {
+        digitalWrite(A,LOW);
+        digitalWrite(B,HIGH);
+      }
+    }
+
+// 初始化 
+    void setup() {
+      pinMode(2,INPUT);   // 外接 pwm 输入信号，用来接收 转动的角度值====500～2500模式===== 
+      
+      pinMode(A,OUTPUT);  // 电机控制板 正反转
+      pinMode(B,OUTPUT);
+      
+      pinMode(A0,INPUT); # 舵机 电位器反馈 模拟量测量接口
+      
+      attachInterrupt(0,rising, RISING); // 2号管脚对应 0号 可以检测硬件中断的端口，上升边中断 外接 PWM信号
+    }
+
+    void loop() {
+      int a = analogRead(A0);     // 读取 舵机主轴连接的电位器 反馈值
+      a = map(a,0,1023,500,2500); // 将0～1023的 模拟量值 映射到 500～2500范围，对应 pwm控制信号的 脉冲宽度范围
+      if(pwm)>2500 pwm =2500;
+      else if(pwm<500) pwm =500; // 确保 pwm 范围，保护====
+      if (pwm-a > Delta)
+      {
+        runMotor(1);// 正转
+      } 
+      else if (pwm-a < -Delta)
+      {
+        runMotor(-1);// 反转
+      } 
+      else 
+      {
+        runMotor(0);// 停止
+      }
+    }
+
+
+```
+
+
+
+# 舵机内部控制程序  PID控制
+
+```c
+
+
+
+#if (ARDUINO >= 100)
+ #include <Arduino.h>// mega 2560  
+#else
+ #include <WProgram.h>//
+#endif
+
+#include "pid.h"// pid
+
+#include <FlexiTimer2.h>//  
+//#include <TimerOne.h>
+
+#define PWM_PIN 9 // PWM 管脚
+#define DIR_PIN 8 // 方向 管脚
+#define ANGEL_PIN A0 // 模拟量反馈 管脚
+
+int angel_last=0;// 上次 反馈值
+int angel_diff_feedback=0;// 两次反馈差值
+int angel_diff_feedback_last=0;
+int led_count=0;
+int pid_count=0;
+
+pidControl pidCon; // pid 控制参数结构体
+PpidControl PpidCon = NULL;// 指针
+
+// 0~360 映射到 0~1023  这里是 电位器反馈值====
+int angel_down = 400;// 转动范围====
+int angel_up = 950;
+int jitter_threshold = 15;// 两头范围 ====模拟量值
+bool enable_change =true; // 使能换向
+// bool half_speed =true;    // 换向前半速，减少磨损===
+
+#define SPEED_VALUE_GOOD 25 //  模拟量 反馈差值  25
+#define PWM_VALUE_GOOD 125  //  pwm 差值   125
+
+  // 125 pwm 值  20ms  差值范围 3~6
+  //             40ms  差值范围 8~11
+  //             60ms  差值范围 13~17
+  //             80ms  差值范围 18~22
+  //             100ms 差值范围 23~27
+  // 也就是说 正常情况下 差值有波动，pwm应该不考虑小范围波动
+
+/*
+// 设置定时器频率==========2560===================
+void setPwmFrequency2560(int pin, int divisor) 
+{
+  byte mode;
+  if((pin >= 2 && pin <= 13) || (pin >= 44 && pin <= 46)) 
+  {
+    switch(divisor) {
+      case 1: mode = 0x01; break;
+      case 8: mode = 0x02; break;
+      case 64: mode = 0x03; break;
+      case 256: mode = 0x04; break;
+      case 1024: mode = 0x05; break;
+      default: return;
+    }
+      if(pin == 4 || pin == 13)//Timer0
+      {
+        TCCR0B = TCCR0B & 0b11111000 | mode;  
+      }
+      else if(pin == 11 || pin == 12 || pin == 13)//Timer1
+      {
+        TCCR1B = TCCR1B & 0b11111000 | mode;  
+      }
+      else if(pin == 8 || pin == 9)//Timer2
+      {
+        TCCR2B = TCCR2B & 0b11111000 | mode;  
+      }
+      else if(pin == 5 || pin == 2 || pin == 3)//Timer3
+      {
+        TCCR3B = TCCR3B & 0b11111000 | mode;  
+      }
+      else if(pin == 6 || pin == 7 || pin == 8)//Timer4
+      {
+        TCCR4B = TCCR4B & 0b11111000 | mode;    
+      }
+      else if(pin == 46 || pin == 45 || pin == 44)//Timer5
+      {
+        TCCR5B = TCCR5B & 0b11111000 | mode;    
+      }
+  } 
+}
+*/
+
+// 设置定时器频率==========UNO===================
+void setPwmFrequencyUNO(int pin, int divisor) 
+{
+  byte mode;
+  if((pin >= 3 && pin <= 11) ) 
+  {
+    switch(divisor) {
+      case 1: mode = 0x01; break;
+      case 8: mode = 0x02; break;
+      case 64: mode = 0x03; break;
+      case 256: mode = 0x04; break;
+      case 1024: mode = 0x05; break;
+      default: return;
+    }
+      if(pin == 5 || pin == 6)//Timer0
+      {
+        TCCR0B = TCCR0B & 0b11111000 | mode;  
+      }
+      else if(pin == 9 || pin == 10 )//Timer1
+      {
+        TCCR1B = TCCR1B & 0b11111000 | mode;  
+      }
+      else if(pin == 3 || pin == 11)//Timer2
+      {
+        TCCR2B = TCCR2B & 0b11111000 | mode;  
+      }
+  }
+}
+
+
+bool led_on_off=false;
+void task()
+{
+  led_count++;
+  pid_count++;
+  if(led_count>=500)
+  {
+  led_count=0; 
+  led_on_off = !led_on_off;
+  digitalWrite(LED_BUILTIN, led_on_off);
+  }
+  // 125 pwm 值  20ms  差值范围 3~6
+  //             40ms  差值范围 8~11
+  //             60ms  差值范围 13~17
+  //             80ms  差值范围 18~22
+  //             100ms 差值范围 23~27
+  // 也就是说 正常情况下 差值有波动，pwm应该不考虑小范围波动=======
+  
+  if(pid_count==50) // *2ms  100ms周期================
+  { 
+   pid_count = 0; 
+   int angel_read = analogRead(ANGEL_PIN);
+   angel_diff_feedback = abs( angel_read - angel_last);
+   angel_last = angel_read;
+   Serial.print(angel_diff_feedback); // 差值
+   Serial.print('\t'); //  
+   Serial.println(angel_read);       // 反馈值
+   //  20 到 0 到 1023 到 1000 区间 ， 差值不稳，剔除====
+   // if(angel_read>20 && angel_read<1000)
+   if( angel_read > (angel_down) && angel_read < (angel_up))// 在指定范围内进行pid控制
+    {
+     // /* // 开启pid控制
+     if(abs(angel_diff_feedback -angel_diff_feedback_last) < 40)//避免过大波动======
+     {
+         POSITION_PID( PpidCon,angel_diff_feedback);
+         SetPwm(PpidCon);
+         Serial.print("piderr0"); //  
+         Serial.print('\t'); //  
+         Serial.print(PpidCon->s16error[0]); //  
+     }
+     angel_diff_feedback_last = angel_diff_feedback;
+     // */
+    }
+    // 缓速==修改期望值===降低 换向时 齿轮损耗===
+    ///*
+    if((angel_read < angel_down + jitter_threshold*5 || angel_read > angel_up - jitter_threshold*5))// 80
+       PpidCon->s16speedwant  = SPEED_VALUE_GOOD/6;// 期望速度变为原来的 1/6
+    else 
+       PpidCon->s16speedwant  = SPEED_VALUE_GOOD;// 还原
+     //*/ 
+     
+     // 直接修改pwm输出值  切换时 震荡很明显====
+   /*
+  if((angel_read < angel_down+jitter_threshold*2 || angel_read > angel_up-jitter_threshold*2))
+      {
+       PpidCon->u16PWM = PWM_VALUE_GOOD/2;// 半速======
+       SetPwm(PpidCon);
+      }
+   */
+   
+    // 换向检测===========================================
+    if((angel_read<angel_down || angel_read>angel_up)&& enable_change )
+    {  
+       enable_change =false;
+       PpidCon->bDrection = !PpidCon->bDrection;// 换向
+       SetDir(PpidCon);
+    }
+    if(angel_down<angel_read && angel_read<angel_up) enable_change =true;// 使能换向检测
+    
+   Serial.print('\t'); //  
+   Serial.print(PpidCon->u16PWM);          // 输出值 
+   Serial.print('\t'); //  
+   Serial.println(PpidCon->s16speedwant);  // 期望值  
+  }
+}
+
+void setup() {
+  
+//  pidControl pidCon;
+//  PpidControl PpidCon = &pidCon;// 指针
+
+  PpidCon = &pidCon;// 指针
+  
+  PpidCon->direction_pin = DIR_PIN;// 方向口
+  PpidCon->pwm_pin       = PWM_PIN;// pwm口
+  PpidCon->bDrection     = true;// 正转
+  PpidCon->s16speedwant  = SPEED_VALUE_GOOD;//   100ms 期望差值===25===
+  
+  PpidCon->s16speed_p=2.5; // pwm 目标值 125附近，反馈值 100ms差值 23~27左右
+  PpidCon->s16speed_i=0.7;
+  PpidCon->s16speed_d=0;
+  
+  // put your setup code here, to run once:
+  pinMode(LED_BUILTIN, OUTPUT);
+  FlexiTimer2::set(2,1.0/1000,task );//2ms执行一次定时器中断服务程序
+  FlexiTimer2::start();
+//Timer1.initialize(150000);// 150ms
+//Timer1.attachInterrupt(task); // blinkLED to run every 0.15 seconds
+   Serial.begin(9600);// 
+
+   pinMode(DIR_PIN, OUTPUT);     // 左轮方向口
+   digitalWrite(DIR_PIN, HIGH);   // LOW 后退   HIGH向前  
+   
+
+   setPwmFrequencyUNO(PWM_PIN,1);//9
+   pinMode(PWM_PIN, OUTPUT);   
+     
+   analogWrite(PWM_PIN,0);  // 半电压== PWM_VALUE_GOOD=125
+
+  angel_last=analogRead(ANGEL_PIN);
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+}
+
+
+```
+

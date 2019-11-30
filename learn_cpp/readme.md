@@ -1,6 +1,33 @@
 # 学习C++
+    C++ 是一个难学易用的语言！
+    C++ 的难学，不仅在其广博的语法，以及语法背後的语意，以及语意背後的深层思维，以及深层思维背後的物件模型；
+    C++ 的难学，还在於它提供了四种不同（但相辅相成）的程式设计思维模式：
+       基于程序procedural-based，基于对象object-based，面向对象object-oriented，泛型思想/设计generic paradigm。
+    世上没有白吃的午餐。又要有效率，又要有弹性，又要前瞻望远，又要回溯相容，
+    又要能治大国，又要能烹小鲜，学习起来当然就不可能太简单。
+    
+    C++ 相关书籍之多，车载斗量；如天上繁星，如过江之鲫。
+    广博如四库全书者有之（The C++ Programming Language、C++ Primer），
+    深奥如重山复水者有之（The Annotated C++ Reference Manual, Inside the C++ Object Model），
+    细说历史者有之（The Design and Evolution of C++, Ruminations on C++），
+    独沽一味者有之（Polymorphism in C++, Genericity in C++），
+    独树一帜者有之（Design Patterns,Large Scale C++ Software Design, C++ FAQs），
+    程式库大全有之（The C++ Standard Library），
+    另辟蹊径者有之（Generic Programming and the STL），
+    工程经验之累积亦有之（Effective C++, More Effective C++, Exceptional C++）。
+    这其中，「工程经验之累积」对已具 C++ 相当基础的程式员而言，有著致命的吸引力与立竿见影的帮助。
+    Scott Meyers 的 Effective C++ 和 More Effective C++ 是此类佼佼，
+    Herb Sutter 的 Exceptional C++ 则是後起之秀。 
+    
+##  参考资料
+[鸡啄米：C++编程入门系列之目录和总结 ](www.jizhuomi.com/software/129.html)
 
-## 鱼C工作室 C++快速入门
+[++98基础上学习C++11新特性](https://www.cnblogs.com/skyfsm/p/9038814.html)
+
+[Effective Modern C++](https://github.com/Ewenwan/Effective-Modern-Cpp-Zh)
+
+[C++ 入门教程](https://www.ctolib.com/docs-cpp-getting-started-guide-c-85ddd5e55c8156076e75d45a2b33c972.html#)
+
 [鱼C工作室 C++快速入门](http://blog.fishc.com/category/cpp/page/5)
 
 [C++ Primer 5 代码](https://github.com/Ewenwan/Cpp-Primer)
@@ -9,6 +36,241 @@
 
 [boost库学习](https://www.cnblogs.com/lvdongjie/category/579434.html)
 
+[C++17 High Performance](https://github.com/PacktPublishing/Cpp-High-Performance)
+
+[C++17 STL Cookbook 代码](https://github.com/PacktPublishing/Cpp17-STL-Cookbook)
+
+[C++  响应式编程（Reactive Programming）](https://github.com/Ewenwan/CPP-Reactive-Programming)
+
+[C++ Template 进阶指南](https://github.com/wuye9036/CppTemplateTutorial)
+
+[C++17 高性能计算](https://github.com/Ewenwan/Cpp-High-Performance)
+
+[CPP-Data-Structures-and-Algorithms](https://github.com/Ewenwan/CPP-Data-Structures-and-Algorithms)
+
+[数据结构和算法动态可视化](https://visualgo.net/zh)
+
+[VS2010/MFC编程入门教程之目录和总结](www.jizhuomi.com/software/257.html)
+
+# 基础议题
+    pointers（指针）
+    references（引用）
+    casts（类型转换）
+    arrays（数组）
+    constructors（构造） default constructors（默认构造函数）
+    
+## 指针与引用的区别
+    指针与引用看上去完全不同（指针用操作符“*”和“->”，引用使用操作符“. ”），
+    但是它们似乎有相同的功能。指针与引用都是让你间接引用其他对象。
+    
+    引用内部实现为常量指针
+    
+```c
+string& rs; // 错误，引用必须被初始化
+string s("xyzzy");
+string& rs = s; // 正确，rs 指向 s
+指针没有这样的限制。
+string *ps; // 未初始化的指针
+ // 合法但危险
+```
+不存在指向空值的引用这个事实意味着使用引用的代码效率比使用指针的要高。
+因为在使用引用之前不需要测试它的合法性。
+```c
+void printDouble(const double& rd)
+{
+ cout << rd; // 不需要测试 rd,它
+} // 肯定指向一个 double 值
+
+// 相反，指针则应该总是被测试，防止其为空：
+void printDouble(const double *pd)
+{
+ if (pd) { // 检查是否为 NULL
+    cout << *pd;
+  }
+}
+```
+指针与引用的另一个重要的不同是指针可以被重新赋值以指向另一个不同的对象。但是
+引用则总是指向在初始化时被指定的对象，以后不能改变。
+```c
+string s1("Nancy");
+string s2("Clancy");
+string& rs = s1; // rs 引用 s1
+string *ps = &s1; // ps 指向 s1
+rs = s2; // rs 仍旧引用 s1,
+ // 但是 s1 的值现在是 "Clancy"
+ 
+ps = &s2; // ps 现在指向 s2;
+ // s1 没有改变 
+ 
+```
+    在以下情况下你应该使用指针，
+     一是你考虑到存在不指向任何对象的可能（在这种情况下，你能够设置指针为空），
+     二是你需要能够在不同的时刻指向不同的对象（在这种情况下，你能改变指针的指向）。
+     
+    如果总是指向一个对象并且一旦指向一个对象后就不会改变指向，那么你应该使用引用。 
+
+## 尽量使用 C++风格的类型转换 
+    仔细想想地位卑贱的类型转换功能（cast），其在程序设计中的地位就象 goto 语句一样令人鄙视。
+    但是它还不是无法令人忍受，因为当在某些紧要的关头，类型转换还是必需的，这时它是一个必需品。
+    
+    C风格的类型转换,过于粗鲁，能允许你在任何类型之间进行转换.
+    C风格的类型转换在程序语句中难以识别。在语法上，类型转换由圆括号和标识符组成，而这些可以用在 Cpp中的任何地方。
+    C++通过引进四个新的类型转换操作符克服了 C 风格类型转换的缺点，这四个操作符是,
+    
+    static_cast,
+    const_cast,
+    dynamic_cast, 
+    和 reinterpret_cast。
+    
+    c强制类型转换  (type) expression
+    
+    1. static_cast
+    
+       static_cast<type>(expression) 
+        a. 基础类型之间互转。如：float转成int、int转成unsigned int等。
+        
+            int firstNumber, secondNumber;
+            ...
+            double result = ((double)firstNumber)/secondNumber; // c风格 
+            如果用上述新的类型转换方法，你应该这样写：
+            double result = static_cast<double>(firstNumber)/secondNumber;// c++风格
+            
+            static_cast 不能从表达式中去除 const 属性，
+            因为另一个新的类型转换操作符 const_cast 有这样的功能。
+            const_cast 最普通的用途就是转换掉对象的 const 属性。
+
+        b. 指针与void*之间互转。如：float*转成void*、CBase*转成void*、函数指针转成void*、void*转成CBase*等
+        c. 派生类指针【引用】转成基类指针【引用】。如：Derive*转成Base*、Derive&转成Base&等
+        d. 非virtual继承时，可将基类指针【引用】转成派生类指针【引用】（多继承时，会做偏移处理）。
+           如：Base*转成Derive*、Base&转成Derive&等
+```c
+class Widget { ... };
+class SpecialWidget: public Widget { ... };
+void update(SpecialWidget *psw);
+SpecialWidget sw; // sw 是一个非 const 对象。
+const SpecialWidget& csw = sw; // csw 是 sw 的一个引用
+ // 它是一个 const 对象
+update(&csw); // 错误!不能传递一个 const SpecialWidget* 变量
+ // 给一个处理 SpecialWidget*类型变量的函数
+ 
+             // 2.const_cast<type>(expression)  转换掉对象的 const 属性====
+            
+update(const_cast<SpecialWidget*>(&csw));
+ // 正确，csw 的 const 被显示地转换掉（
+ // csw 和 sw 两个变量值在 update
+ //函数中能被更新）
+update((SpecialWidget*)&csw);
+ // 同上，但用了一个更难识别
+ //的 C 风格的类型转换
+Widget *pw = new SpecialWidget;
+update(pw); // 错误！pw 的类型是 Widget*，但是 
+            // update 函数处理的是 SpecialWidget*类型
+            
+
+update(const_cast<SpecialWidget*>(pw));
+ // 错误！const_cast 仅能被用在影响
+ // constness or volatileness 的地方上。,
+ // 不能用在向继承子类进行类型转换。 
+
+
+```
+
+    3. dynamic_cast  
+        dynamic_cast<type>(expression) 
+        专门用于处理多态机制，对继承体系内的对象（类中必须含有至少一个虚函数）
+        的指针【引用】进行转换，转换时会进行类型检查.
+        它被用于安全地沿着类的继承关系向下进行类型转换。
+        用 dynamic_cast 把指向基类的指针或引用转换成指向其派生类或其兄弟类的指针或引用，而且你能知道转换是否成功。
+        失败的转换将返回空指针（当对指针进行类型转换时）或者抛出异常（当对引用进行类型转换时）： 
+```c
+Widget *pw; // 基类 对象 指针
+...
+update(dynamic_cast<SpecialWidget*>(pw));
+ // 正确，传递给 update 函数一个指针
+ // 是指向变量类型为 SpecialWidget 的 pw 的指针
+ // 如果 pw 确实指向一个对象,
+ // 否则传递过去的将使空指针。
+void updateViaRef(SpecialWidget& rsw);
+updateViaRef(dynamic_cast<SpecialWidget&>(*pw));
+ //正确。 传递给 updateViaRef 函数
+ // SpecialWidget pw 指针，如果 pw
+ // 确实指向了某个对象
+ // 否则将抛出异常 
+
+int firstNumber, secondNumber;
+...
+double result = dynamic_cast<double>(firstNumber)/secondNumber;
+ // 错误！没有继承关系，想在没有继承关系的类型中进行转换，你可能想到 static_cast。
+const SpecialWidget sw;
+...
+update(dynamic_cast<SpecialWidget*>(&sw));
+ // 错误! dynamic_cast 不能转换掉 const。
+ // 为了去除const，你总得用 const_cast。 
+```
+        
+        
+        4.reinterpret_cast   重新解释
+        reinterpret_cast <new_type> (expression)
+        用来处理无关类型之间的转换；
+        它会产生一个新的值，这个值会有与原始参数（expressoin）有完全相同的比特位.
+        字面意思：重新解释（类型的比特位）
+            a.从指针类型到一个足够大的整数类型
+            b.从整数类型或者枚举类型到指针类型
+            c.从一个指向函数的指针到另一个不同类型的指向函数的指针
+            d.从一个指向对象的指针到另一个不同类型的指向对象的指针
+            e.从一个指向类函数成员的指针到另一个指向不同类型的函数成员的指针
+            f.从一个指向类数据成员的指针到另一个指向不同类型的数据成员的指针
+            
+        使用reinterpret_casts 的代码很难移植。
+        reinterpret_casts 的最普通的用途就是在函数指针类型之间进行转换。
+```c  
+typedef void (*FuncPtr)(); // FuncPtr is 一个指向函数的指针，该函数没有参数
+                           // 返回值类型为 void
+FuncPtr funcPtrArray[10]; // funcPtrArray 是一个能容纳10 个 FuncPtrs 指针的数组 
+
+//  如果要把一个指向下面函数的指针存入 funcPtrArray 数组：
+// int doSomething();      
+
+// 你不能不经过类型转换而直接去做，因为 doSomething 函数对于 funcPtrArray 数组来说有一个错误的类型。
+// 在 FuncPtrArray 数组里的函数返回值是 void 类型，而 doSomething函数返回值是 int 类型。
+funcPtrArray[0] = &doSomething; // 错误！类型不匹配
+// reinterpret_cast 可以让你迫使编译器以你的方法去看待它们：
+funcPtrArray[0] = // 可编译通过
+       reinterpret_cast<FuncPtr>(&doSomething);
+```
+
+可以用下面的宏替换来模拟新的类型转换语法：
+```c
+#define static_cast(TYPE,EXPR) ((TYPE)(EXPR))   // 后面为 c语言强转方式
+#define const_cast(TYPE,EXPR) ((TYPE)(EXPR))
+#define reinterpret_cast(TYPE,EXPR) ((TYPE)(EXPR))
+```
+你可以象这样使用使用：
+```c
+double result = static_cast(double, firstNumber)/secondNumber; 
+update(const_cast(SpecialWidget*, &sw));
+funcPtrArray[0] = reinterpret_cast(FuncPtr, &doSomething); 
+
+
+#define dynamic_cast(TYPE,EXPR) (TYPE)(EXPR)
+// 请记住，这个模拟并不能完全实现 dynamic_cast 的功能，它没有办法知道转换是否失败。
+``` 
+
+## 不要对数组使用多态 
+    类继承的最重要的特性是你可以通过基类(父类) 指针或引用 来 操作 派生类(子类)。
+    多态和指针算法不能混合在一起来用，所以数组与多态也不能用在一起。 
+    
+## 避免无用的缺省构造函数
+    在一个完美的世界里，无需任何数据即可建立对象的类可以包含缺省构造函数，
+    而需要数据来建立对象的类则不能包含缺省构造函数。
+    唉！可是我们的现实世界不是完美的，所以我们必须考虑更多的因素。
+    特别是如果一个类没有缺省构造函数，就会存在一些使用上的限制。 
+    
+    
+    
+    
+    
+    
 
 # C++类成员和数据成员初始化总结
     C++为类中提供类成员的初始化列表

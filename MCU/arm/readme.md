@@ -1,11 +1,19 @@
 # arm 学习
+[arm官方资料](http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.subset.swdev.rvds/index.html)
+
 [ARM](https://www.cnblogs.com/lvdongjie/category/975651.html)
 
 [ARMv8 架构与指令集.学习笔记](https://www.cnblogs.com/lvdongjie/p/6644821.html)
 
 [ARMv8 内存管理架构.学习笔记](https://www.cnblogs.com/lvdongjie/p/6644848.html)
 
+[嵌入式 arm linux c编程](https://github.com/PacktPublishing/Mastering-Embedded-Linux-Programming-Second-Edition)
 
+[linux 设备驱动开发](https://github.com/PacktPublishing/Linux-Device-Drivers-Development)
+
+[ARM内嵌汇编示例](https://wenku.baidu.com/view/72c12e4133687e21af45a990.html)
+
+[YUV转RGB（NV21-ARGB）的Neon优化代码](https://blog.csdn.net/jxt1234and2010/article/details/46620001)
 
 # ARM与单片机到底有啥区别
 

@@ -46,8 +46,11 @@
 ### 2、修改配置文件   
     sudo vim /etc/exports
 
-    修改内容如下：
+    修改添加内容如下：
     /home *(rw,sync,no_root_squash)
+    
+    更长 ：
+    /home/ewenwan/nfs *(insecure,rw,sync,nohide,no_root_squash,no_subtree_check)
 
     /home   ：共享的目录
     *       ：指定哪些用户可以访问
@@ -77,14 +80,18 @@
     2.4-测试运行以下命令来显示一下共享出来的目录：
         showmount -e
 
-
+    !!!需要修改 远程挂载目录 /home/ewenwan/nfs的权限   chmod 777  /home/ewenwan/nfs   !!!!!!!
+    
     ## 客户端访问配置
 
 
 ### window  安装 nfs 客户端
     win10 控制面板 程序和功能 启用或关闭Windows功能 勾选NFS服务 确定后系统进行自动安装
     打开 cmd 
-    mount \\10.65.223.171\目录 x:
+    
+    mount \\\10.65.223.171\目录 x:
+    
+    挂载远程主机的 目录 到 本机上 的x盘
 
     挂载 umount x:
 ### 客户端 无权 限访问问题
@@ -97,12 +104,28 @@
     AnonymousUid = 0
     AnonymousGid = 0
 
+## linux 系统之间挂载共享目录
+
+在工作主机下:
+  
+  mount -t nfs 目标机ip:目标机目标目录 工作机目录 -o nolock
+  
+  例如:
+  
+     mount -t nfs 10.1.110.123:/home/ws /home/wanyouwen -o nolock
+     
+     就可以在 当前主机的 /home/wanyouwen 目录访问 远程主机10.1.110.123  下的目录 /home/ws
+    
+
+
+
 ### winscp 访问 远程服务器文件 ftp协议
 [百度参考](https://jingyan.baidu.com/article/d621e8da79ee562865913fce.html)
 
 ### 远程 命令行登陆服务器 shell
 [Xmanager 服务器远程控制程序 ](https://www.netsarang.com/products/xme_overview.html)
 
+[putty ssh远程登录 命令行shell](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)
  
 # 三、 linux配置
 [ubuntu大法-快速翻墙装驱动配置开发环境](https://github.com/DragonFive/myblog/blob/master/source/_posts/nvidiaDriverInstall.md)
@@ -245,6 +268,10 @@ Ubuntu14.04升级CMake：
         cd build
 
 
-
-
+# linux 命令行查看 十六进制
+    https://github.com/sharkdp/hexyl
+    
+    安装: 
+    wget "https://github.com/sharkdp/hexyl/releases/download/v0.4.0/hexyl_0.4.0_amd64.deb"
+    sudo dpkg -i hexyl_0.4.0_amd64.deb
 

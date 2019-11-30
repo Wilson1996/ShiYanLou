@@ -1,6 +1,29 @@
 # 学习 GO语言
 [参考](https://blog.csdn.net/column/details/18320.html?&page=2)
 
+[Go入门指南pdf](https://github.com/zxysilent/books/blob/master/Go%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97.pdf)
+
+[Go语言圣经pdf](https://github.com/zxysilent/books/blob/master/Go%E8%AF%AD%E8%A8%80%E5%9C%A3%E7%BB%8F.pdf)
+
+[go语言编程pdf](https://github.com/zxysilent/books/blob/master/go%E8%AF%AD%E8%A8%80%E7%BC%96%E7%A8%8B.pdf)
+
+[]()
+
+
+[Go数据结构和算法](https://github.com/PacktPublishing/Hands-On-Data-Structures-and-Algorithms-with-Go)
+
+[GO语言学习代码](https://github.com/Ewenwan/go_journey)
+
+[GO开发的 高度可定制的全文搜索引擎 微博搜索网站 学习资源](https://github.com/Ewenwan/wukong)
+
+[Go中文分词 分词器算法为基于词频的最短路径加动态规划](https://github.com/Ewenwan/sego)
+
+[Go语言汉字转拼音工具](https://github.com/huichen/pinyin)
+
+[GO 图像交互界面GUI 开发 ](https://github.com/PacktPublishing/Hands-On-GUI-Application-Development-in-Go)
+
+[GO 机器学习](https://github.com/PacktPublishing/Go-Machine-Learning-Projects)
+
 # 介绍
     Go语言是Google开发的一种静态强类型、编译型、并发型，并具有垃圾回收功能的编程语言。为了方便搜索和识别，有时会将其称为Golang。
 
